@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Web;
 using System.Linq;
+using Newtonsoft.Json;
 
 public class CUtility
 {
@@ -27,8 +28,10 @@ public class CUtility
         return hash.ToLower();
     }
 
-    public static DataTable Get_UserProfile(string type, string id)
+    public static string Get_UserProfile(string type, string id)
     {
+        string data = "";
+        Object dtOutput = new Object();
         DataTable dt = new DataTable();
         dt.Columns.Add("ID", typeof(string));
         dt.Columns.Add("NAME", typeof(string));
@@ -47,10 +50,38 @@ public class CUtility
             .Where(row => row.Field<string>("ID") == id && row.Field<string>("GENDER") == type)
             .FirstOrDefault();
 
-        dt.Rows.Clear();
-        dt.ImportRow(user);
+        dtOutput = user.ItemArray;
+        //data = JsonConvert.SerializeObject(dtOutput, Formatting.Indented);
+        data = JsonConvert.SerializeObject(dtOutput);
 
-        return dt;
+        return data;
+
+    }
+
+    public static string Get_DataDummy()
+    {
+        string data = "";
+        Object dtOutput = new Object();
+        DataTable dt = new DataTable();
+        dt.Columns.Add("AXIS_X", typeof(double));
+        dt.Columns.Add("AXIS_Y", typeof(double));
+        dt.Columns.Add("AXIS_Z", typeof(double));
+        dt.Columns.Add("SPEED", typeof(double));
+
+        dt.Rows.Add(4870, 0, 0.28, 25);
+        dt.Rows.Add(4679, 0, 0.28, 27);
+        dt.Rows.Add(4987, 0, 0.28, 23);
+        dt.Rows.Add(4800, 0, 0.28, 21);
+
+        //var user = dt.AsEnumerable()
+        //    .Where(row => row.Field<string>("ID") == id && row.Field<string>("GENDER") == type)
+        //    .FirstOrDefault();
+
+        //dtOutput = user.ItemArray;
+
+        data = JsonConvert.SerializeObject(dt);
+
+        return data;
 
     }
 }

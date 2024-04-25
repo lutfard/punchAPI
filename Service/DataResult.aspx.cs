@@ -10,7 +10,7 @@ using System.Collections;
 
 public partial class Service_DataResult : System.Web.UI.Page
 {
-    public class Param
+    public class InquiryParam
     {
         public string TYPE { get; set; }
         public string ID { get; set; }
@@ -22,7 +22,7 @@ public partial class Service_DataResult : System.Web.UI.Page
         public string CODE { get; set; }
         public string STATUS { get; set; }
         public string MESSAGE { get; set; }
-        public DataTable DATA { get; set; }
+        public Object DATA { get; set; }
     }
 
     protected void Page_Load(object sender, EventArgs e)
@@ -37,33 +37,26 @@ public partial class Service_DataResult : System.Web.UI.Page
             sCallerIP = Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
         }
 
-        string auth = Request.Headers["Authorization"];
+        string auth = Request.Headers["KEY"];
 
-        Param param = new Param();
+        InquiryParam param = new InquiryParam();
         param.TYPE = string.IsNullOrEmpty(Request.Form["TYPE"]) ? "" : Request.Form["TYPE"];
         param.ID = string.IsNullOrEmpty(Request.Form["ID"]) ? "" : Request.Form["ID"];
-        sendData(param, sCallerIP, "req");
+        param.KEY = string.IsNullOrEmpty(Request.Form["KEY"]) ? "" : Request.Form["KEY"];
+
+        sendData(param, sCallerIP, auth);
 
 
     }
 
-    private Param getParam()
-    {
-        Param param = new Param();
-        param.TYPE = string.IsNullOrEmpty(Request.Form["TYPE"]) ? "" : Request.Form["TYPE"];
-        param.ID = string.IsNullOrEmpty(Request.Form["ID"]) ? "" : Request.Form["ID"];
-
-        return param;
-    }
-
-    private void sendData(Param param, string sCallerIP, string auth)
+    private void sendData(InquiryParam param, string sCallerIP, string auth)
     {
         Response.ContentType = "application/json";
         DataResponse response = new DataResponse();
         response.CODE = "00";
         response.STATUS = "OK";
         response.MESSAGE = "OK";
-        response.DATA = new DataTable();
+        //response.DATA = new DataTable();
 
         string token = "";
 
@@ -80,10 +73,10 @@ public partial class Service_DataResult : System.Web.UI.Page
                     //CUtility.ErrorLog("Hario", "KEY tidak sesuai", param.EMAIL, "AccountRegister");
                 }
                 else
-                { 
-                    DataTable dtResult = new DataTable();
+                {
+                    string dtResult = "";
                     dtResult = CUtility.Get_UserProfile(param.TYPE, param.ID);
-                    response.DATA = dtResult;
+                    response.DATA = JsonConvert.DeserializeObject(dtResult);
                 }
             }
             catch (Exception ex)
